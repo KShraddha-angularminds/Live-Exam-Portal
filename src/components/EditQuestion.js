@@ -1,82 +1,77 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import {Link,useParams} from 'react-router-dom'
+import {Link,useParams,useNavigate} from 'react-router-dom'
 
 function EditQuestion() {
     const {Qid} = useParams();
+    const navigate = useNavigate();
+  
     const [queAPI, setQueAPI] = useState([]);
     const [subAPI, setSubAPI] = useState([]);
     const [topicAPI, setTopicAPI] = useState([]);
-    const [QidData,setQidData] =useState([]);
-    const tempOptionArr =[{
-        isCorrect: false,
-        option: ''
-    },
-    {
-        isCorrect: false,
-        option: ''
-    },
-    {
-        isCorrect: false,
-        option: ''
-    },
-    {
-        isCorrect: false,
-        option: ''
-    }
-]
-    const tokenKey ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNTI5OTkzLCJleHAiOjE2NDM1NzMxOTN9.xy4c6dRPVAydXFuktMX885YatpkZstF3aHOhTAd2mKI"
-    const [optionArr, setOptionArr] = useState(tempOptionArr);
-    const tempformData = 
-        {
-            subject: "",
-            topic: "",
-            type: "MULTIPLE CHOICE",
-            questionText:'',
-            DiffLevel: "easy",
-            rightMarks: 1,
-            wrongMarks: 0,
-            options: null
-           
-        }
-    
-    const [formData, setFormData] = useState(tempformData)
+    const [isloading,setIsLoading] = useState(false)
    
+    const tokenKey ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNjkwNDc3LCJleHAiOjE2NDM3MzM2Nzd9.rvaDoA1OwjHgJjs85f52ENKfTRdqo7NlkrudyN-JkMQ"
+    const [optionArr, setOptionArr] = useState([]);
+    
+    
+    const [formData, setFormData] = useState( {
+        subject: "",
+        topic: "",
+        type: "MULTIPLE CHOICE",
+        questionText:'',
+        DiffLevel: "easy",
+        rightMarks: 1,
+        wrongMarks: 0,
+        options: null
+       
+    })
     useEffect(() => {
         axios.get(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: tokenKey } })
             .then(response => {
                 console.log(response.data)
-                setQidData(response.data);
+                //setQidData({...response.data});
+                setFormData({
+                    ...formData, 
+                    subject: response.data.subject._id,
+                    topic: response.data.topic._id,
+                    type: response.data.type,
+                    questionText : response.data.questionText,
+                    DiffLevel: response.data.diffLevel,
+                    rightMarks: response.data.rightMarks,
+                    wrongMarks: response.data.wrongMarks,
+
+                })
+                setOptionArr([...response.data.options])
+                setIsLoading(true)
             })
             .catch(error => {
                 console.log(error);
             })
     }, [Qid]);
-    console.log(QidData
-)
+   // isloading && console.log(QidData)
 
-    useEffect(()=>{
-        setOptionArr(QidData.options)
+   
+       //subject api call
+        useEffect(() => {
 
-    },[QidData])
+            axios.get(`http://admin.liveexamcenter.in/api/subjects?page=1&limit=5&term=`, { headers: { authorization: tokenKey } })
+                .then((res) => {
+                  
+                    setSubAPI(res.data.result)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
     
-    useEffect(() => {
-        axios.get(`http://admin.liveexamcenter.in/api/subjects?term=`, { headers: { authorization: tokenKey } })
-            .then(response => {
-                console.log(response.data.result)
-                setSubAPI(response.data.result);
-            })
-            .catch(error => {
-                console.log(error);
-            })
-    }, []);
-
+    
+        }, [])
     //Read API for Topics
     useEffect(() => {
 
         axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: tokenKey } })
             .then((res) => {
-                console.log(res.data.result)
+              
                 setTopicAPI(res.data.result)
             })
             .catch((err) => {
@@ -86,11 +81,11 @@ function EditQuestion() {
 
     }, [])
 
-    useEffect(()=>{
-        //to deselect the option when question type changes
-         setOptionArr(tempOptionArr);
+    // useEffect(()=>{
+    //     //to deselect the option when question type changes
+    //      setOptionArr(tempOptionArr);
         
-    },[formData.Qtype])
+    // },[formData.type])
     
     useEffect(()=>{
         //to add the option array to formdata
@@ -124,13 +119,14 @@ function EditQuestion() {
         ))
        
     }
-console.log(formData)
+       isloading && console.log(formData)
     const SubmitForm =(e)=>{
         e.preventDefault();
         // let navigate = Navigate();
         axios.put(`http://admin.liveexamcenter.in/api/questions/${Qid}`,formData,{ headers: { authorization: tokenKey }})
         .then((res) => {
             console.log(res.data)
+            navigate("/questions")
            // setTopicAPI(res.data.result)
         })
         .catch((err) => {
@@ -138,9 +134,8 @@ console.log(formData)
         })
         console.log(optionArr)
         console.log(formData)
-        setFormData(tempformData)
-        //Navigate(`/questions/`);
-
+        
+     
         
     }
 
@@ -169,9 +164,13 @@ console.log(formData)
        setOptionArr(temp)
      
     }
-
+ //   console.log("hello")
+    //console.log(QidData.type)
+   // console.log(QidData.diffLevel)
+    
     return (
         <div>
+            {isloading && 
             <div className='add-div'>
                 <div className='add-header'>
                     <h3>Add question</h3>
@@ -184,7 +183,7 @@ console.log(formData)
                             {/* for subject */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1' >
                                 <label>Select Subject</label><br />
-                                <select className='add-select' name='subject' defaultValue={QidData.subject && QidData.subject._id} onChange={onChangeHandler} required>
+                                <select className='add-select' name='subject' value={formData.subject} onChange={onChangeHandler} required>
                                     {subAPI && subAPI.map((subject, i) => {
                                         return <option key={i} value={subject._id}>{subject.name}</option>
                                     })}
@@ -193,8 +192,8 @@ console.log(formData)
                             {/* for topic */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1'>
                                 <label>Select Topic</label><br />
-                                <select className='add-select' name='topic' defaultValue={QidData.topic && QidData.topic._id} onChange={onChangeHandler}>
-                                    { <option value={QidData.topic && QidData.topic._id} >{QidData.topic && QidData.topic.name}</option> }
+                                <select className='add-select' name='topic' value={formData.topic} onChange={onChangeHandler}>
+                                     {/* <option value={QidData.topic && QidData.topic._id} >{QidData.topic && QidData.topic.name}</option>  */}
                                     {topicAPI && topicAPI.map((topic, i) => {
                                         return(topic.subject && topic.subject._id === formData.subject ?
                                             <option key={i} value={topic._id}>{topic.name}</option> : null)
@@ -210,7 +209,7 @@ console.log(formData)
                                 {/* for Question type */}
                                 <div style={{ flex: '1' }} className='row2-div'>
                                     <label>Question Type</label><br />
-                                    <select className='add-select' name='Qtype' defaultValue={QidData.type} onChange={onChangeHandler}>
+                                    <select className='add-select' name='Qtype' value={formData.type} onChange={onChangeHandler}>
                                         <option value={'MULTIPLE CHOICE'} >Multiple Choice</option>
                                         <option value={'MULTIPLE RESPONSE'}>Multiple Response</option>
                                         <option value={'FILL IN BLANKS'}>Fill in the blanks</option>
@@ -219,7 +218,7 @@ console.log(formData)
                                 {/* for Difficulty Level */}
                                 <div style={{ flex: '1' }} className='add-main-row2-half row2-div'>
                                     <label>Difficulty Level</label><br />
-                                    <select className='add-select' name='DiffLevel' defaultValue={QidData.diffLevel} onChange={onChangeHandler}>
+                                    <select className='add-select' name='DiffLevel' value={formData.DiffLevel} onChange={onChangeHandler}>
                                         <option value={'easy'} >Easy</option>
                                         <option value={'medium'}>Medium</option>
                                         <option value={'hard'}>Hard</option>
@@ -229,24 +228,24 @@ console.log(formData)
                             <div style={{ flex: '1' }} className='add-main-row2-col1 '>
                                 <div style={{ flex: '1' }} >
                                     <label>Right Marks</label><br />
-                                    <input type={'text'} name='rightMarks' className='add-input' defaultValue={QidData.rightMarks} onChange={onChangeHandler} />
+                                    <input type={'text'} name='rightMarks' className='add-input' value={formData.rightMarks} onChange={onChangeHandler} />
                                 </div>
                                 <div style={{ flex: '1' }} className='add-main-row2-half'>
                                     <label>Wrong Marks</label>
-                                    <input type={'text'} name='wrongMarks' className='add-input' defaultValue={QidData.wrongMarks} onChange={onChangeHandler} />
+                                    <input type={'text'} name='wrongMarks' className='add-input' value={formData.wrongMarks} onChange={onChangeHandler} />
                                 </div>
                             </div>
                         </div>
                         <div className='questionText-div'>
                             <label>Question</label>
-                            <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' defaultValue={QidData.questionText} onChange={onChangeHandler} />
+                            <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' defaultValue={formData.questionText} onChange={onChangeHandler} />
                         </div>
                         <div>
 
                             Options
                             {optionArr.map((i, val) => {
                                 return (
-                                    formData.Qtype == 'MULTIPLE RESPONSE' ?
+                                    formData.type == 'MULTIPLE RESPONSE' ?
                                         <div key={val}>
                                             <div className='options-row' >
                                                 <div className='options-col left'>
@@ -282,6 +281,7 @@ console.log(formData)
                     </div>
                 </form>
             </div>
+}
         </div>
     )
 }
