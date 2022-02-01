@@ -4,10 +4,10 @@ import {Link,useParams} from 'react-router-dom'
 
 function EditQuestion() {
     const {Qid} = useParams();
-    console.log(Qid)
     const [queAPI, setQueAPI] = useState([]);
     const [subAPI, setSubAPI] = useState([]);
     const [topicAPI, setTopicAPI] = useState([]);
+    const [QidData,setQidData] =useState([]);
     const tempOptionArr =[{
         isCorrect: false,
         option: ''
@@ -25,12 +25,13 @@ function EditQuestion() {
         option: ''
     }
 ]
+    const tokenKey ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNTI5OTkzLCJleHAiOjE2NDM1NzMxOTN9.xy4c6dRPVAydXFuktMX885YatpkZstF3aHOhTAd2mKI"
     const [optionArr, setOptionArr] = useState(tempOptionArr);
     const tempformData = 
         {
             subject: "",
             topic: "",
-            Qtype: "MULTIPLE CHOICE",
+            type: "MULTIPLE CHOICE",
             questionText:'',
             DiffLevel: "easy",
             rightMarks: 1,
@@ -42,18 +43,25 @@ function EditQuestion() {
     const [formData, setFormData] = useState(tempformData)
    
     useEffect(() => {
-        axios.get(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: tokenKey } })
             .then(response => {
                 console.log(response.data)
-                setFormData(response.data);
+                setQidData(response.data);
             })
             .catch(error => {
                 console.log(error);
             })
-    }, []);
+    }, [Qid]);
+    console.log(QidData
+)
 
+    useEffect(()=>{
+        setOptionArr(QidData.options)
+
+    },[QidData])
+    
     useEffect(() => {
-        axios.get(`http://admin.liveexamcenter.in/api/subjects?term=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/subjects?term=`, { headers: { authorization: tokenKey } })
             .then(response => {
                 console.log(response.data.result)
                 setSubAPI(response.data.result);
@@ -66,7 +74,7 @@ function EditQuestion() {
     //Read API for Topics
     useEffect(() => {
 
-        axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: tokenKey } })
             .then((res) => {
                 console.log(res.data.result)
                 setTopicAPI(res.data.result)
@@ -116,10 +124,11 @@ function EditQuestion() {
         ))
        
     }
-
+console.log(formData)
     const SubmitForm =(e)=>{
         e.preventDefault();
-        axios.post('http://admin.liveexamcenter.in/api/questions',formData,{ headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" }})
+        // let navigate = Navigate();
+        axios.put(`http://admin.liveexamcenter.in/api/questions/${Qid}`,formData,{ headers: { authorization: tokenKey }})
         .then((res) => {
             console.log(res.data)
            // setTopicAPI(res.data.result)
@@ -130,6 +139,9 @@ function EditQuestion() {
         console.log(optionArr)
         console.log(formData)
         setFormData(tempformData)
+        //Navigate(`/questions/`);
+
+        
     }
 
     const checkBoxOption =(i,e)=>{
@@ -172,8 +184,7 @@ function EditQuestion() {
                             {/* for subject */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1' >
                                 <label>Select Subject</label><br />
-                                <select className='add-select' name='subject' defaultValue={formData.subject} onChange={onChangeHandler} required>
-                                    {/* <option value=''>Search Subject...</option> */}
+                                <select className='add-select' name='subject' defaultValue={QidData.subject && QidData.subject._id} onChange={onChangeHandler} required>
                                     {subAPI && subAPI.map((subject, i) => {
                                         return <option key={i} value={subject._id}>{subject.name}</option>
                                     })}
@@ -182,11 +193,11 @@ function EditQuestion() {
                             {/* for topic */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1'>
                                 <label>Select Topic</label><br />
-                                <select className='add-select' name='topic' defaultValue={formData.topic} onChange={onChangeHandler}>
-                                    {/* <option value='' >Search Topic...</option> */}
+                                <select className='add-select' name='topic' defaultValue={QidData.topic && QidData.topic._id} onChange={onChangeHandler}>
+                                    { <option value={QidData.topic && QidData.topic._id} >{QidData.topic && QidData.topic.name}</option> }
                                     {topicAPI && topicAPI.map((topic, i) => {
-                                        return topic.subject._id == formData.subject ?
-                                            <option key={i} value={topic._id}>{topic.name}</option> : null
+                                        return(topic.subject && topic.subject._id === formData.subject ?
+                                            <option key={i} value={topic._id}>{topic.name}</option> : null)
                                     })}
                                 </select>
                             </div>
@@ -199,7 +210,7 @@ function EditQuestion() {
                                 {/* for Question type */}
                                 <div style={{ flex: '1' }} className='row2-div'>
                                     <label>Question Type</label><br />
-                                    <select className='add-select' name='Qtype' defaultValue={formData.Qtype} onChange={onChangeHandler}>
+                                    <select className='add-select' name='Qtype' defaultValue={QidData.type} onChange={onChangeHandler}>
                                         <option value={'MULTIPLE CHOICE'} >Multiple Choice</option>
                                         <option value={'MULTIPLE RESPONSE'}>Multiple Response</option>
                                         <option value={'FILL IN BLANKS'}>Fill in the blanks</option>
@@ -208,7 +219,7 @@ function EditQuestion() {
                                 {/* for Difficulty Level */}
                                 <div style={{ flex: '1' }} className='add-main-row2-half row2-div'>
                                     <label>Difficulty Level</label><br />
-                                    <select className='add-select' name='DiffLevel' defaultValue={formData.DiffLevel} onChange={onChangeHandler}>
+                                    <select className='add-select' name='DiffLevel' defaultValue={QidData.diffLevel} onChange={onChangeHandler}>
                                         <option value={'easy'} >Easy</option>
                                         <option value={'medium'}>Medium</option>
                                         <option value={'hard'}>Hard</option>
@@ -218,17 +229,17 @@ function EditQuestion() {
                             <div style={{ flex: '1' }} className='add-main-row2-col1 '>
                                 <div style={{ flex: '1' }} >
                                     <label>Right Marks</label><br />
-                                    <input type={'text'} name='rightMarks' className='add-input' value={formData.rightMarks} onChange={onChangeHandler} />
+                                    <input type={'text'} name='rightMarks' className='add-input' defaultValue={QidData.rightMarks} onChange={onChangeHandler} />
                                 </div>
                                 <div style={{ flex: '1' }} className='add-main-row2-half'>
                                     <label>Wrong Marks</label>
-                                    <input type={'text'} name='wrongMarks' className='add-input' value={formData.wrongMarks} onChange={onChangeHandler} />
+                                    <input type={'text'} name='wrongMarks' className='add-input' defaultValue={QidData.wrongMarks} onChange={onChangeHandler} />
                                 </div>
                             </div>
                         </div>
                         <div className='questionText-div'>
                             <label>Question</label>
-                            <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' value={formData.questionText} onChange={onChangeHandler} />
+                            <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' defaultValue={QidData.questionText} onChange={onChangeHandler} />
                         </div>
                         <div>
 
@@ -236,7 +247,7 @@ function EditQuestion() {
                             {optionArr.map((i, val) => {
                                 return (
                                     formData.Qtype == 'MULTIPLE RESPONSE' ?
-                                        <div>
+                                        <div key={val}>
                                             <div className='options-row' >
                                                 <div className='options-col left'>
                                                     <input type={'checkbox'} name={'isCorrect'} id={`radio-1`}   name='isCorrect' checked={i.isCorrect} onChange={(e)=>checkBoxOption(val,e.target)} /> Option {val+1}
@@ -246,7 +257,7 @@ function EditQuestion() {
                                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }}> Remove Option</button>|
                                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
                                         </div> :
-                                        <div>
+                                        <div key={val}>
                                             <div className='options-row' >
                                                 <div className='options-col left'>
                                                     <input type={'radio'} name={'isCorrect'} id={`radio-1`}  name='isCorrect' checked={i.isCorrect} onChange={(e)=>radioBoxOption(val,e.target)}/> Option {val+1}
@@ -264,7 +275,7 @@ function EditQuestion() {
                         <button type='button' onClick={newOption}>+Add Option</button>
                     </div>
                     <div className='add-footer'>
-                        <button className='btn btn-primary' style={{ padding: '10px 15px 10px 15px', fontSize: '20px' }} type='submit'>Save question</button>
+                        <button className='btn btn-primary' style={{ padding: '10px 15px 10px 15px', fontSize: '20px' }} type='submit'>Update question</button>
                         <Link to='/questions'>
                         <button type='button' className='btn btn-light' style={{ marginLeft: '30px', fontSize: '20px', border: 'none', outline: 'none', padding: '6px 10px 6px 10px' }}>Cancel</button>
                         </Link>

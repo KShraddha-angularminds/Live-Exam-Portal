@@ -22,6 +22,7 @@ function AddQuestions() {
         option: ''
     }
 ]
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNTI5OTkzLCJleHAiOjE2NDM1NzMxOTN9.xy4c6dRPVAydXFuktMX885YatpkZstF3aHOhTAd2mKI"
     const [optionArr, setOptionArr] = useState(tempOptionArr);
     const tempformData = 
         {
@@ -39,7 +40,7 @@ function AddQuestions() {
     const [formData, setFormData] = useState(tempformData)
     //Read API For subject
     useEffect(() => {
-        axios.get(`http://admin.liveexamcenter.in/api/subjects?term=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/subjects?term=`, { headers: { authorization: tokenKey } })
             .then(response => {
                 console.log(response.data.result)
                 setSubAPI(response.data.result);
@@ -52,7 +53,7 @@ function AddQuestions() {
     //Read API for Topics
     useEffect(() => {
 
-        axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/topics?term=`, { headers: { authorization: tokenKey } })
             .then((res) => {
                 console.log(res.data.result)
                 setTopicAPI(res.data.result)
@@ -105,7 +106,7 @@ function AddQuestions() {
 
     const SubmitForm =(e)=>{
         e.preventDefault();
-        axios.post('http://admin.liveexamcenter.in/api/questions',formData,{ headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" }})
+        axios.post('http://admin.liveexamcenter.in/api/questions',formData,{ headers: { authorization: tokenKey }})
         .then((res) => {
             console.log(res.data)
            // setTopicAPI(res.data.result)
@@ -116,6 +117,7 @@ function AddQuestions() {
         console.log(optionArr)
         console.log(formData)
         setFormData(tempformData)
+        
     }
 
     const checkBoxOption =(i,e)=>{
@@ -170,9 +172,10 @@ function AddQuestions() {
                                 <label>Select Topic</label><br />
                                 <select className='add-select' name='topic' onChange={onChangeHandler}>
                                     <option value='' >Search Topic...</option>
-                                    {topicAPI && topicAPI.map((topic, i) => {
-                                        return topic.subject._id == formData.subject ?
-                                            <option key={i} value={topic._id}>{topic.name}</option> : null
+                                
+                                    { topicAPI && topicAPI.map((topic, i) => {
+                                        return(topic.subject && topic.subject._id === formData.subject ?
+                                            <option key={i} value={topic._id}>{topic.name}</option> : null)
                                     })}
                                 </select>
                             </div>
@@ -221,6 +224,8 @@ function AddQuestions() {
                             Options
                             {optionArr.map((i, val) => {
                                 return (
+                                    <div key={val}>
+                                        {
                                     formData.Qtype == 'MULTIPLE RESPONSE' ?
                                         <div>
                                             <div className='options-row' >
@@ -243,7 +248,8 @@ function AddQuestions() {
                                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
                                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
                                         </div>
-                                )
+                              }   </div>
+                              )
                             })}
 
                         </div>

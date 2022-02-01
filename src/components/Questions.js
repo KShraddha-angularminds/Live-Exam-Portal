@@ -15,6 +15,7 @@ function Questions() {
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNTI5OTkzLCJleHAiOjE2NDM1NzMxOTN9.xy4c6dRPVAydXFuktMX885YatpkZstF3aHOhTAd2mKI"
     useEffect(() => {
         setX(1);
     }, [selectedValue])
@@ -30,7 +31,7 @@ function Questions() {
 
     console.log(selectedValue);
     useEffect(() => {
-        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=&topic=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=&topic=`, { headers: { authorization: tokenKey } })
             .then(response => {
                 changeTotalEntries(response.data.totalCount);
                 console.log(response.data.result);
@@ -43,7 +44,7 @@ function Questions() {
 
     useEffect(() => {
 
-        axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/topics?page=1&limit=5&term=`, { headers: { authorization: tokenKey } })
             .then((res) => {
                 console.log(res.data.result)
                 setTopicAPI(res.data.result)
@@ -64,7 +65,7 @@ function Questions() {
     if (endIndex > totalEntries) endIndex = totalEntries;
 
     const searchQues = (e) => {
-        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=${e.target.value}&topic=`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=${e.target.value}&topic=`, { headers: { authorization: tokenKey } })
             .then(response => {
                 changeTotalEntries(response.data.totalCount);
                 setQData(response.data.result);
@@ -75,7 +76,7 @@ function Questions() {
     }
     const topicHandler = (e) => {
         console.log(e.target.value)
-        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=&topic=${e.target.value}`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+        axios.get(`http://admin.liveexamcenter.in/api/questions?page=${x}&limit=${selectedValue}&term=&topic=${e.target.value}`, { headers: { authorization: tokenKey } })
             .then(response => {
                 changeTotalEntries(response.data.totalCount);
                 setQData(response.data.result);
@@ -89,7 +90,7 @@ function Questions() {
         // confirm("box")
         const result = confirm("Are you sure you want to delete the question, this can not be rolled back?");
         if (result) {
-            axios.delete(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzMjYyOTc2LCJleHAiOjE2NDMzMDYxNzZ9.y3UQVJC2yNAyVzGzuqHrY5zTiLp97g9khP6xVJF5nE4" } })
+            axios.delete(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: tokenKey } })
                 .then(response => {
                     changeTotalEntries(response.data.totalCount);
                     setQData(response.data.result);
