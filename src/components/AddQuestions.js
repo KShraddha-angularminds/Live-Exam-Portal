@@ -1,42 +1,51 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 function AddQuestions() {
 
     const [subAPI, setSubAPI] = useState([]);
     const [topicAPI, setTopicAPI] = useState([]);
-    const tempOptionArr =[{
+    const [richEditorQ, setRichEditorQ] = useState("Enable")
+    const [richEditor, setRichEditor] = useState("Enable")
+   // const [optIndex, setOptIndex] = useState()
+    const tempOptionArr = [{
         isCorrect: false,
-        option: ''
+        option: '',
+        richTextEditor: false
     },
     {
         isCorrect: false,
-        option: ''
+        option: '',
+        richTextEditor: false
     },
     {
         isCorrect: false,
-        option: ''
+        option: '',
+        richTextEditor: false
     },
     {
         isCorrect: false,
-        option: ''
+        option: '',
+        richTextEditor: false
     }
-]
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNTI5OTkzLCJleHAiOjE2NDM1NzMxOTN9.xy4c6dRPVAydXFuktMX885YatpkZstF3aHOhTAd2mKI"
+    ]
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzODYyMDQ5LCJleHAiOjE2NDM5MDUyNDl9.Mx6Z1WY8Pf5S3aTwTPCB-0ycLEGcq1HeNeHP4wOHdJA"
     const [optionArr, setOptionArr] = useState(tempOptionArr);
-    const tempformData = 
-        {
-            subject: "",
-            topic: "",
-            Qtype: "MULTIPLE CHOICE",
-            questionText:'',
-            DiffLevel: "easy",
-            rightMarks: 1,
-            wrongMarks: 0,
-            options: null
-           
-        }
-    
+    const tempformData =
+    {
+        subject: "",
+        topic: "",
+        Qtype: "MULTIPLE CHOICE",
+        questionText: '',
+        DiffLevel: "easy",
+        rightMarks: 1,
+        wrongMarks: 0,
+        options: null
+
+    }
+
     const [formData, setFormData] = useState(tempformData)
     //Read API For subject
     useEffect(() => {
@@ -65,87 +74,112 @@ function AddQuestions() {
 
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         //to deselect the option when question type changes
-         setOptionArr(tempOptionArr);
-        
-    },[formData.Qtype])
-    
-    useEffect(()=>{
+        setOptionArr(tempOptionArr);
+
+    }, [formData.Qtype])
+
+    useEffect(() => {
         //to add the option array to formdata
-        setFormData({...formData, options:optionArr})
-    },[optionArr])
+        setFormData({ ...formData, options: optionArr })
+    }, [optionArr])
 
     const onChangeHandler = (e) => {
         const ename = e.target.name;
-        if(e.target.name=='rightMarks' || e.target.name=='wrongMarks')
-        {
+        console.log(e)
+        console.log(e.target.value)
+        if (e.target.name == 'rightMarks' || e.target.name == 'wrongMarks') {
             setFormData({ ...formData, [ename]: parseInt(e.target.value) })
-        } 
+        }
         else
-        setFormData({ ...formData, [ename]: e.target.value })
+            setFormData({ ...formData, [ename]: e.target.value })
     }
 
 
     function removeOption(index) {
-       // 
-        const tempArr= [...optionArr];
-        tempArr.splice(index,1)
+        // 
+        console.log(index)
+        const tempArr = [...optionArr];
+        tempArr.splice(index, 1)
         setOptionArr(tempArr)
-       
-        
+
+
     }
     //console.log(optionArr)
 
-    const changeOptions = (i,input) =>{
-        setOptionArr(prev=> prev.map((option,ind)=>
-            i==ind ? {...option, option: input} : option
+    const changeOptions = (i, input) => {
+        setOptionArr(prev => prev.map((option, ind) =>
+            i == ind ? { ...option, option: input } : option
         ))
-       
+
     }
 
-    const SubmitForm =(e)=>{
+    const SubmitForm = (e) => {
         e.preventDefault();
-        axios.post('http://admin.liveexamcenter.in/api/questions',formData,{ headers: { authorization: tokenKey }})
-        .then((res) => {
-            console.log(res.data)
-           // setTopicAPI(res.data.result)
-        })
-        .catch((err) => {
-            console.log(err)
-        })
+        axios.post('http://admin.liveexamcenter.in/api/questions', formData, { headers: { authorization: tokenKey } })
+            .then((res) => {
+                console.log(res.data)
+                // setTopicAPI(res.data.result)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
         console.log(optionArr)
         console.log(formData)
         setFormData(tempformData)
-        
+
     }
 
-    const checkBoxOption =(i,e)=>{
+    const checkBoxOption = (i, e) => {
         //To check option is checked or not and accordingly set value of iscorrect
-       e.checked== true ? setOptionArr(prev=> prev.map((isCorrect,ind)=>
-              i==ind ? {...isCorrect, isCorrect: true} : isCorrect
-          )) : setOptionArr(prev=> prev.map((isCorrect,ind)=>
-          i==ind ? {...isCorrect, isCorrect: false} : isCorrect
-      ))
+        e.checked == true ? setOptionArr(prev => prev.map((isCorrect, ind) =>
+            i == ind ? { ...isCorrect, isCorrect: true } : isCorrect
+        )) : setOptionArr(prev => prev.map((isCorrect, ind) =>
+            i == ind ? { ...isCorrect, isCorrect: false } : isCorrect
+        ))
 
     }
 
-    const radioBoxOption =(i,e)=>{
+    const radioBoxOption = (i, e) => {
         //To check option is checked or not and accordingly set value of iscorrect
-       e.checked== true ? setOptionArr(prev=> prev.map((isCorrect,ind)=>
-              i==ind ? {...isCorrect, isCorrect: true} : {...isCorrect, isCorrect: false}
-          )) : setOptionArr(prev=> prev.map((isCorrect,ind)=>
-          i==ind ? {...isCorrect, isCorrect: false} : isCorrect
-      ))
+        e.checked == true ? setOptionArr(prev => prev.map((isCorrect, ind) =>
+            i == ind ? { ...isCorrect, isCorrect: true } : { ...isCorrect, isCorrect: false }
+        )) : setOptionArr(prev => prev.map((isCorrect, ind) =>
+            i == ind ? { ...isCorrect, isCorrect: false } : isCorrect
+        ))
 
     }
 
-    const newOption = () =>{
-       const temp = [...optionArr , { isCorrect: false, option: ''}]
-       setOptionArr(temp)
-     
+    const newOption = () => {
+        const temp = [...optionArr, { isCorrect: false, option: '' }]
+        setOptionArr(temp)
+
     }
 
+    const changeRichTextQ = () => {
+        richEditorQ == "Enable" ? setRichEditorQ("Disable") : setRichEditorQ("Enable");
+    }
+    const changeRichText = (i) => {
+      
+        // setOptIndex(val)
+         richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
+         setOptionArr((prev) =>
+         prev.map((opt, j) => (i === j ? { ...opt, richTextEditor: opt.richTextEditor==true ? false :true } : opt))
+       );
+
+    }
+    const onChangeHandlerEditor = (e) => {
+        setFormData({ ...formData, questionText: e })
+    }
+    const onChangeHandlerEditorOp = (e,i) => {
+            console.log(e)
+            setOptionArr((prev) =>
+            prev.map((opt, j) => (i === j ? { ...opt, option: e } : opt))
+          );
+    }
+
+    console.log(formData)
     return (
         <div>
             <div className='add-div'>
@@ -172,9 +206,9 @@ function AddQuestions() {
                                 <label>Select Topic</label><br />
                                 <select className='add-select' name='topic' onChange={onChangeHandler}>
                                     <option value='' >Search Topic...</option>
-                                
-                                    { topicAPI && topicAPI.map((topic, i) => {
-                                        return(topic.subject && topic.subject._id === formData.subject ?
+
+                                    {topicAPI && topicAPI.map((topic, i) => {
+                                        return (topic.subject && topic.subject._id === formData.subject ?
                                             <option key={i} value={topic._id}>{topic.name}</option> : null)
                                     })}
                                 </select>
@@ -217,7 +251,18 @@ function AddQuestions() {
                         </div>
                         <div className='questionText-div'>
                             <label>Question</label>
-                            <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' value={formData.questionText} onChange={onChangeHandler} />
+                            {richEditorQ == "Enable" ?
+                                <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' value={formData.questionText} onChange={onChangeHandler} />
+                                :
+
+                                <ReactQuill
+                                  
+                                    onChange={onChangeHandlerEditor}
+                                    value={formData.questionText}
+                                />
+
+                            }
+                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichTextQ()}>  {richEditorQ} Rich Text Editor</button>
                         </div>
                         <div>
 
@@ -226,30 +271,45 @@ function AddQuestions() {
                                 return (
                                     <div key={val}>
                                         {
-                                    formData.Qtype == 'MULTIPLE RESPONSE' ?
-                                        <div>
-                                            <div className='options-row' >
-                                                <div className='options-col left'>
-                                                    <input type={'checkbox'} name={'isCorrect'} id={`radio-1`}   name='isCorrect' checked={i.isCorrect} onChange={(e)=>checkBoxOption(val,e.target)} /> Option {val+1}
+                                            formData.Qtype == 'MULTIPLE RESPONSE' ?
+                                                <div>
+                                                    <div className='options-row' >
+                                                        <div className='options-col left'>
+                                                            <input type={'checkbox'} name={'isCorrect'} id={`radio-1`} name='isCorrect' checked={i.isCorrect} onChange={(e) => checkBoxOption(val, e.target)} /> Option {val + 1}
+                                                        </div>
+                                                        {
+                                                            i.richTextEditor==false  ?
+                                                                <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e) => changeOptions(val, e.target.value)} />
+                                                                :
+                                                                <ReactQuill
+                                                                    onChange={(e)=>onChangeHandlerEditorOp(e,val)}
+                                                                    value={i.option}
+                                                                />
+                                                        }
+                                                    </div>
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} > Remove Option</button>|
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                </div> :
+                                                <div>
+                                                    <div className='options-row' >
+                                                        <div className='options-col left'>
+                                                            <input type={'radio'} name={'isCorrect'} id={`radio-1`} name='isCorrect' checked={i.isCorrect} onChange={(e) => radioBoxOption(val, e.target)} /> Option {val + 1}
+                                                        </div>
+                                                        {
+                                                             i.richTextEditor==false  ?
+                                                                <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e) => changeOptions(val, e.target.value)} />
+                                                                :
+                                                                <ReactQuill
+                                                                    onChange={(e)=>onChangeHandlerEditorOp(e,val)}
+                                                                    value={i.option}
+                                                                />
+                                                        }
+                                                    </div>
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}>  {richEditor} Rich Text Editor</button>
                                                 </div>
-                                                <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e)=>changeOptions(val,e.target.value)} />
-                                            </div>
-                                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }}> Remove Option</button>|
-                                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
-                                        </div> :
-                                        <div>
-                                            <div className='options-row' >
-                                                <div className='options-col left'>
-                                                    <input type={'radio'} name={'isCorrect'} id={`radio-1`}  name='isCorrect' checked={i.isCorrect} onChange={(e)=>radioBoxOption(val,e.target)}/> Option {val+1}
-                                                </div>
-                                                <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e)=>changeOptions(val,e.target.value)} />
- 
-                                            </div>
-                                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
-                                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
-                                        </div>
-                              }   </div>
-                              )
+                                        }   </div>
+                                )
                             })}
 
                         </div>
@@ -258,7 +318,7 @@ function AddQuestions() {
                     <div className='add-footer'>
                         <button className='btn btn-primary' style={{ padding: '10px 15px 10px 15px', fontSize: '20px' }} type='submit'>Save question</button>
                         <Link to='/questions'>
-                        <button type='button' className='btn btn-light' style={{ marginLeft: '30px', fontSize: '20px', border: 'none', outline: 'none', padding: '6px 10px 6px 10px' }}>Cancel</button>
+                            <button type='button' className='btn btn-light' style={{ marginLeft: '30px', fontSize: '20px', border: 'none', outline: 'none', padding: '6px 10px 6px 10px' }}>Cancel</button>
                         </Link>
                     </div>
                 </form>

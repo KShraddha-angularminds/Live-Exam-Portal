@@ -15,7 +15,7 @@ function Questions() {
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
-    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzNjkwNDc3LCJleHAiOjE2NDM3MzM2Nzd9.rvaDoA1OwjHgJjs85f52ENKfTRdqo7NlkrudyN-JkMQ"
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzODYyMDQ5LCJleHAiOjE2NDM5MDUyNDl9.Mx6Z1WY8Pf5S3aTwTPCB-0ycLEGcq1HeNeHP4wOHdJA"
     useEffect(() => {
         setX(1);
     }, [selectedValue])
@@ -137,14 +137,17 @@ function Questions() {
                                 <hr />
                                 <div className='per-question'>
                                     <input type={'checkbox'} name="question" value={index} id={index} />
-                                    {question.questionText}
+                                    <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:question.questionText}} />
+                                    {/* {question.questionText} */}
                                     <div className='options-div'>
                                         {question.options.map((option, indexop) => {
                                             return (
                                                 <div key={indexop}>
                                                     <label>
-                                                        <input type={qType} name='option' value={indexop} id={indexop} />
-                                                        {option.option}
+                                                        {console.log(typeof(option.isCorrect))}
+                                                        <input type={qType} name='option' value={indexop} id={indexop} checked={option.isCorrect} disabled={true}/>
+                                                        {/* {option.option} */}
+                                                        <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:option.option}} />
                                                     </label>
                                                 </div>
 
