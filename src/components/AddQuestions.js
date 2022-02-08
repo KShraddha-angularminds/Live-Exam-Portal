@@ -9,7 +9,11 @@ function AddQuestions() {
     const [topicAPI, setTopicAPI] = useState([]);
     const [richEditorQ, setRichEditorQ] = useState("Enable")
     const [richEditor, setRichEditor] = useState("Enable")
-   // const [optIndex, setOptIndex] = useState()
+    const [validate, setValidate] = useState({})
+    const [validateOpt,setValidateOpt] = useState({})
+    const [validateSameQ,setValidateSameQ] = useState({})
+    let a=''
+    // const [optIndex, setOptIndex] = useState()
     const tempOptionArr = [{
         isCorrect: false,
         option: '',
@@ -31,7 +35,7 @@ function AddQuestions() {
         richTextEditor: false
     }
     ]
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzODYyMDQ5LCJleHAiOjE2NDM5MDUyNDl9.Mx6Z1WY8Pf5S3aTwTPCB-0ycLEGcq1HeNeHP4wOHdJA"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0MjkyNzc4LCJleHAiOjE2NDQzMzU5Nzh9.GQmj1paG6Eaj-3eed0mL-5Nv-SshEbS_N6qVIKO9Xe0"
     const [optionArr, setOptionArr] = useState(tempOptionArr);
     const tempformData =
     {
@@ -88,17 +92,25 @@ function AddQuestions() {
     const onChangeHandler = (e) => {
         const ename = e.target.name;
         console.log(e)
-        console.log(e.target.value)
+        console.log(e.target.name)
         if (e.target.name == 'rightMarks' || e.target.name == 'wrongMarks') {
             setFormData({ ...formData, [ename]: parseInt(e.target.value) })
         }
         else
             setFormData({ ...formData, [ename]: e.target.value })
-    }
 
+        if (e.target.value == '') {
+
+            setValidate({ ...validate, [ename]: `${ename} is Required` })
+        }
+        else {
+            setValidate({ ...validate, [ename]: '' })
+        }
+    }
+    
 
     function removeOption(index) {
-        // 
+       
         console.log(index)
         const tempArr = [...optionArr];
         tempArr.splice(index, 1)
@@ -112,9 +124,20 @@ function AddQuestions() {
         setOptionArr(prev => prev.map((option, ind) =>
             i == ind ? { ...option, option: input } : option
         ))
-
+      
+        if(input=='')
+        {
+          setValidateOpt({...validateOpt, [i]: {option:"option is required"}})
+        }
+        else
+        {
+            setValidateOpt({...validateOpt, [i] :''})
+        }
+        // optionArr.map((index)=>{
+        //   return  index.option == input ? setValidateSameQ({...validateSameQ, sameQue :'Duplicate options are not allowed'}): setValidateSameQ(validateSameQ)
+        // })
     }
-
+    
     const SubmitForm = (e) => {
         e.preventDefault();
         axios.post('http://admin.liveexamcenter.in/api/questions', formData, { headers: { authorization: tokenKey } })
@@ -161,31 +184,49 @@ function AddQuestions() {
         richEditorQ == "Enable" ? setRichEditorQ("Disable") : setRichEditorQ("Enable");
     }
     const changeRichText = (i) => {
-      
+
         // setOptIndex(val)
-         richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
-         setOptionArr((prev) =>
-         prev.map((opt, j) => (i === j ? { ...opt, richTextEditor: opt.richTextEditor==true ? false :true } : opt))
-       );
+        richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
+        setOptionArr((prev) =>
+            prev.map((opt, j) => (i === j ? { ...opt, richTextEditor: opt.richTextEditor == true ? false : true } : opt))
+        );
 
     }
     const onChangeHandlerEditor = (e) => {
         setFormData({ ...formData, questionText: e })
-    }
-    const onChangeHandlerEditorOp = (e,i) => {
-            console.log(e)
-            setOptionArr((prev) =>
-            prev.map((opt, j) => (i === j ? { ...opt, option: e } : opt))
-          );
-    }
+        console.log(e)
+        if (e == '<p><br></p>') {
+          
+            setValidate({ ...validate, questionText: `Question Text is Required` })
+        }
+        else {
+            setValidate({ ...validate, questionText: '' })
+        }
 
-    console.log(formData)
+    }
+    const onChangeHandlerEditorOp = (e, i) => {
+        console.log(e)
+        setOptionArr((prev) =>
+            prev.map((opt, j) => (i === j ? { ...opt, option: e } : opt))
+        );
+        if(e=='<p><br></p>')
+        {
+          setValidateOpt({...validateOpt, [i]: {option:"option is required"}})
+        }
+        else
+        {
+            setValidateOpt({...validateOpt, [i] :''})
+        } 
+    }
+    // console.log(validate)
+    // console.log(formData)
     return (
         <div>
             <div className='add-div'>
                 <div className='add-header'>
                     <h3>Add question</h3>
                 </div>
+                {/* <pre>{JSON.stringify(formData, undefined, 2)}</pre> */}
                 <form onSubmit={SubmitForm} id='myForm'>
                     {/* middle part of add question page */}
                     <div className='add-main'>
@@ -200,6 +241,7 @@ function AddQuestions() {
                                         return <option key={i} value={subject._id}>{subject.name}</option>
                                     })}
                                 </select>
+                                <span style={{ color: "red" }}>{validate.subject}</span>
                             </div>
                             {/* for topic */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1'>
@@ -212,6 +254,7 @@ function AddQuestions() {
                                             <option key={i} value={topic._id}>{topic.name}</option> : null)
                                     })}
                                 </select>
+                                <span style={{ color: "red" }}>{validate.topic}</span>
                             </div>
                             {
                             }       </div>
@@ -242,10 +285,12 @@ function AddQuestions() {
                                 <div style={{ flex: '1' }} >
                                     <label>Right Marks</label><br />
                                     <input type={'text'} name='rightMarks' className='add-input' value={formData.rightMarks} onChange={onChangeHandler} />
+                                    <span style={{ color: "red" }}>{validate.rightMarks}</span>
                                 </div>
                                 <div style={{ flex: '1' }} className='add-main-row2-half'>
                                     <label>Wrong Marks</label>
                                     <input type={'text'} name='wrongMarks' className='add-input' value={formData.wrongMarks} onChange={onChangeHandler} />
+                                    <span style={{ color: "red" }}>{validate.wrongMarks}</span>
                                 </div>
                             </div>
                         </div>
@@ -256,14 +301,17 @@ function AddQuestions() {
                                 :
 
                                 <ReactQuill
-                                  
+
                                     onChange={onChangeHandlerEditor}
                                     value={formData.questionText}
+
                                 />
 
                             }
-                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichTextQ()}>  {richEditorQ} Rich Text Editor</button>
+
+                            <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichTextQ()}>  {richEditorQ} Rich Text Editor</button>
                         </div>
+                        <span style={{ color: "red" }}>{validate.questionText}</span>
                         <div>
 
                             Options
@@ -271,6 +319,7 @@ function AddQuestions() {
                                 return (
                                     <div key={val}>
                                         {
+                                            
                                             formData.Qtype == 'MULTIPLE RESPONSE' ?
                                                 <div>
                                                     <div className='options-row' >
@@ -278,17 +327,20 @@ function AddQuestions() {
                                                             <input type={'checkbox'} name={'isCorrect'} id={`radio-1`} name='isCorrect' checked={i.isCorrect} onChange={(e) => checkBoxOption(val, e.target)} /> Option {val + 1}
                                                         </div>
                                                         {
-                                                            i.richTextEditor==false  ?
+                                                            i.richTextEditor == false ?
                                                                 <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e) => changeOptions(val, e.target.value)} />
                                                                 :
                                                                 <ReactQuill
-                                                                    onChange={(e)=>onChangeHandlerEditorOp(e,val)}
+                                                                    onChange={(e) => onChangeHandlerEditorOp(e, val)}
                                                                     value={i.option}
                                                                 />
                                                         }
                                                     </div>
                                                     <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} > Remove Option</button>|
-                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                    {Object.keys(validateOpt).map((obj,i)=>{
+                                                     return i==val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
+                                                   })}
                                                 </div> :
                                                 <div>
                                                     <div className='options-row' >
@@ -296,24 +348,31 @@ function AddQuestions() {
                                                             <input type={'radio'} name={'isCorrect'} id={`radio-1`} name='isCorrect' checked={i.isCorrect} onChange={(e) => radioBoxOption(val, e.target)} /> Option {val + 1}
                                                         </div>
                                                         {
-                                                             i.richTextEditor==false  ?
+                                                            i.richTextEditor == false ?
                                                                 <textarea rows={4} id={`textarea-1`} className='options-col right' value={i.option} style={{ border: 'none', paddingLeft: '10px' }} name={`option`} onChange={(e) => changeOptions(val, e.target.value)} />
                                                                 :
                                                                 <ReactQuill
-                                                                    onChange={(e)=>onChangeHandlerEditorOp(e,val)}
+                                                                    onChange={(e) => onChangeHandlerEditorOp(e, val)}
                                                                     value={i.option}
                                                                 />
                                                         }
                                                     </div>
                                                     <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
                                                     <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                  
+                                                 
+                                                   {Object.keys(validateOpt).map((obj,i)=>{
+                                                     return i==val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
+                                                   })}
                                                 </div>
+                                                
                                         }   </div>
                                 )
                             })}
 
                         </div>
                         <button type='button' onClick={newOption}>+Add Option</button>
+                        <span style={{ color: "red" }}>{validateSameQ.sameQue}</span>
                     </div>
                     <div className='add-footer'>
                         <button className='btn btn-primary' style={{ padding: '10px 15px 10px 15px', fontSize: '20px' }} type='submit'>Save question</button>

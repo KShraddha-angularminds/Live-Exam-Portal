@@ -14,7 +14,7 @@ function EditQuestion() {
     const [topicAPI, setTopicAPI] = useState([]);
     const [isloading, setIsLoading] = useState(false)
     const [richTextEditFlag, setRichTextEditFlag] = useState([])
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzODYyMDQ5LCJleHAiOjE2NDM5MDUyNDl9.Mx6Z1WY8Pf5S3aTwTPCB-0ycLEGcq1HeNeHP4wOHdJA"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0MjkyNzc4LCJleHAiOjE2NDQzMzU5Nzh9.GQmj1paG6Eaj-3eed0mL-5Nv-SshEbS_N6qVIKO9Xe0"
     const [optionArr, setOptionArr] = useState([]);
 
 
@@ -197,7 +197,15 @@ function EditQuestion() {
           );
     }
   
-  
+    useEffect(() => {
+        if (isloading) {
+          let temp = optionArr.map((e) => {
+            e.richTextEditor = false;
+            return e;
+          });
+          setOptionArr(temp);
+        } else return;
+      }, [isloading]);
     return (
         <div>
             {isloading &&
@@ -205,6 +213,7 @@ function EditQuestion() {
                     <div className='add-header'>
                         <h3>Add question</h3>
                     </div>
+                    <pre>{JSON.stringify(formData, undefined, 2)}</pre>
                     <form onSubmit={SubmitForm} id='myForm'>
                         {/* middle part of add question page */}
                         <div className='add-main'>
@@ -307,7 +316,7 @@ function EditQuestion() {
                                                  
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }}> Remove Option</button>|
-                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
+                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
                                             </div> :
                                             <div key={val}>
                                                 <div className='options-row' >
@@ -326,7 +335,7 @@ function EditQuestion() {
                                                         }
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
-                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} >  Enable Rich Text Editor</button>
+                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
                                             </div>
                                     )
                                 })}

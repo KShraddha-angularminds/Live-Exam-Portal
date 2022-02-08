@@ -12,10 +12,12 @@ function Questions() {
     const [topicAPI, setTopicAPI] = useState([]);
     const [totalEntries, changeTotalEntries] = useState(0);
     const [selectedValue, changeSelectedValue] = useState(10);
+    const [checkArr, setCheckArr] = useState([])
+    const [deleteResponse,setDelResonse]=useState('')
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
-    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQzODYyMDQ5LCJleHAiOjE2NDM5MDUyNDl9.Mx6Z1WY8Pf5S3aTwTPCB-0ycLEGcq1HeNeHP4wOHdJA"
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0MjkyNzc4LCJleHAiOjE2NDQzMzU5Nzh9.GQmj1paG6Eaj-3eed0mL-5Nv-SshEbS_N6qVIKO9Xe0"
     useEffect(() => {
         setX(1);
     }, [selectedValue])
@@ -40,7 +42,7 @@ function Questions() {
             .catch(error => {
                 console.log(error);
             })
-    }, [x, selectedValue]);
+    }, [x, selectedValue,deleteResponse]);
 
     useEffect(() => {
 
@@ -88,19 +90,77 @@ function Questions() {
 
     const deleteQueHandler = (Qid) => {
         // confirm("box")
-        const result = confirm("Are you sure you want to delete the question, this can not be rolled back?");
+        const result = window.confirm("Are you sure you want to delete the question, this can not be rolled back?");
         if (result) {
             axios.delete(`http://admin.liveexamcenter.in/api/questions/${Qid}`, { headers: { authorization: tokenKey } })
                 .then(response => {
                     changeTotalEntries(response.data.totalCount);
                     setQData(response.data.result);
+                    setDelResonse(Qid)
                 })
                 .catch(error => {
                     console.log(error);
                 })
         }
 
+    }  
+    const SingleDelete = (e, index) => {
+        if (e.target.checked) setCheckArr([...checkArr, index])
+        else {
+            document.getElementById("AllCheck").checked=false 
+            const tempArr = checkArr.filter(item => item !== index);
+            setCheckArr(tempArr)
+            console.log(checkArr)
+        }
+
     }
+
+    const deleteSelected = (e) =>{
+        checkArr.map((index)=>{
+            axios.delete(`http://admin.liveexamcenter.in/api/questions/${index}`, { headers: { authorization: tokenKey } })
+            .then(response => {
+               setCheckArr([])
+               setDelResonse(e)
+               document.getElementById("qCheck").checked = false;
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        })
+    }
+    
+    const deleteAll = (e) =>{
+        if(e.target.checked)
+        {
+            var ele=document.getElementsByName('questionChk');  
+            for(var i=0; i<ele.length; i++){  
+                if(ele[i].type=='checkbox')  
+                    ele[i].checked=true;  
+            }
+        let temp= qData.map((data)=>{
+          
+            return data._id
+        })
+        setCheckArr(temp)
+        }
+        else
+        {
+            var ele=document.getElementsByName('questionChk');  
+            for(var i=0; i<ele.length; i++){  
+                if(ele[i].type=='checkbox')  
+                    ele[i].checked=false;  
+            }
+            setCheckArr([])
+        }
+    }
+
+    useEffect(() => {
+        if (checkArr.length != 0)
+            document.getElementById("sDelete").style.display = "block";
+        else document.getElementById("sDelete").style.display = "none";
+    }, [checkArr])
+
+
     return (
         <div className>
             <div className='title-div'>
@@ -110,6 +170,8 @@ function Questions() {
             </div>
             <div className='main-div'>
                 <div className='header-div'>
+                <input type="checkbox" id="AllCheck" onClick={(e)=>deleteAll(e)}/>
+                <button name='check' id="sDelete" style={{ display: "none" }} className="btn btn-danger" onClick={(e)=>deleteSelected(e)}>Delete {checkArr.length} Questions</button>
                     Show <select value={selectedValue} onChange={handleChange}>
                         <option value={5}>5</option>
                         <option value={10}>10</option>
@@ -136,7 +198,7 @@ function Questions() {
                             <div key={index}>
                                 <hr />
                                 <div className='per-question'>
-                                    <input type={'checkbox'} name="question" value={index} id={index} />
+                                    <input type={'checkbox'} name="questionChk"  id='qCheck'  onClick={(e) => SingleDelete(e, question._id)} />
                                     <div style={{display:"inline-block"}} dangerouslySetInnerHTML={{__html:question.questionText}} />
                                     {/* {question.questionText} */}
                                     <div className='options-div'>
