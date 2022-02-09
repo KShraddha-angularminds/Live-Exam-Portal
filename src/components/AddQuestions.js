@@ -3,16 +3,19 @@ import axios from 'axios';
 import { Link } from 'react-router-dom'
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { computeHeadingLevel } from '@testing-library/react';
+// import { computeHeadingLevel } from '@testing-library/react';
 function AddQuestions() {
 
     const [subAPI, setSubAPI] = useState([]);
     const [topicAPI, setTopicAPI] = useState([]);
     const [richEditorQ, setRichEditorQ] = useState("Enable")
-    const [richEditor, setRichEditor] = useState("Enable")
     const [validate, setValidate] = useState({})
     const [validateOpt,setValidateOpt] = useState({})
     const [validateSameQ,setValidateSameQ] = useState({})
-    let a=''
+    const [formErrors,setFormErrors] = useState({})
+    const [formErrorsOpt,setFormErrorsOpt] = useState({})
+    const [isSubmit,setIsSubmit] = useState(false)
     // const [optIndex, setOptIndex] = useState()
     const tempOptionArr = [{
         isCorrect: false,
@@ -35,7 +38,7 @@ function AddQuestions() {
         richTextEditor: false
     }
     ]
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0MjkyNzc4LCJleHAiOjE2NDQzMzU5Nzh9.GQmj1paG6Eaj-3eed0mL-5Nv-SshEbS_N6qVIKO9Xe0"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDAzOTA2LCJleHAiOjE2NDQ0NDcxMDZ9.YCwzIQu4KwaxJxOd6-y27t_ALGa1rNNnkVPxrUWBbVo"
     const [optionArr, setOptionArr] = useState(tempOptionArr);
     const tempformData =
     {
@@ -92,7 +95,7 @@ function AddQuestions() {
     const onChangeHandler = (e) => {
         const ename = e.target.name;
         console.log(e)
-        console.log(e.target.name)
+        console.log(e.target.value)
         if (e.target.name == 'rightMarks' || e.target.name == 'wrongMarks') {
             setFormData({ ...formData, [ename]: parseInt(e.target.value) })
         }
@@ -140,19 +143,40 @@ function AddQuestions() {
     
     const SubmitForm = (e) => {
         e.preventDefault();
+        console.log(validateOnSubmit(formData))
+        setFormErrors(validateOnSubmit(formData))
+        validateOnSubmitOpt(formData)
+
+        setIsSubmit(true)
         axios.post('http://admin.liveexamcenter.in/api/questions', formData, { headers: { authorization: tokenKey } })
             .then((res) => {
                 console.log(res.data)
-                // setTopicAPI(res.data.result)
             })
             .catch((err) => {
                 console.log(err)
             })
-        console.log(optionArr)
         console.log(formData)
+         console.log(formErrors)
         setFormData(tempformData)
 
     }
+
+    useEffect(()=>{
+        if(Object.keys(formErrors).length == 0 && isSubmit)
+        {
+            console.log("innnn")
+            axios.post('http://admin.liveexamcenter.in/api/questions', formData, { headers: { authorization: tokenKey } })
+            .then((res) => {
+                console.log(res.data)
+                console.log("sucees")
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            
+        }
+    })
+    console.log(formErrors)
 
     const checkBoxOption = (i, e) => {
         //To check option is checked or not and accordingly set value of iscorrect
@@ -166,16 +190,16 @@ function AddQuestions() {
 
     const radioBoxOption = (i, e) => {
         //To check option is checked or not and accordingly set value of iscorrect
-        e.checked == true ? setOptionArr(prev => prev.map((isCorrect, ind) =>
-            i == ind ? { ...isCorrect, isCorrect: true } : { ...isCorrect, isCorrect: false }
+        e.checked === true ? setOptionArr(prev => prev.map((isCorrect, ind) =>
+            i === ind ? { ...isCorrect, isCorrect: true } : { ...isCorrect, isCorrect: false }
         )) : setOptionArr(prev => prev.map((isCorrect, ind) =>
-            i == ind ? { ...isCorrect, isCorrect: false } : isCorrect
+            i === ind ? { ...isCorrect, isCorrect: false } : isCorrect
         ))
 
     }
 
     const newOption = () => {
-        const temp = [...optionArr, { isCorrect: false, option: '' }]
+        const temp = [...optionArr, { isCorrect: false, option: '',richTextEditor: false}]
         setOptionArr(temp)
 
     }
@@ -186,17 +210,16 @@ function AddQuestions() {
     const changeRichText = (i) => {
 
         // setOptIndex(val)
-        richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
+       // richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
         setOptionArr((prev) =>
             prev.map((opt, j) => (i === j ? { ...opt, richTextEditor: opt.richTextEditor == true ? false : true } : opt))
         );
-
+        
     }
     const onChangeHandlerEditor = (e) => {
         setFormData({ ...formData, questionText: e })
         console.log(e)
         if (e == '<p><br></p>') {
-          
             setValidate({ ...validate, questionText: `Question Text is Required` })
         }
         else {
@@ -218,8 +241,32 @@ function AddQuestions() {
             setValidateOpt({...validateOpt, [i] :''})
         } 
     }
-    // console.log(validate)
-    // console.log(formData)
+    const validateOnSubmit =(values)=>{
+        const errors = {}
+
+        if(values.subject=='')
+            errors.subject="Subject is Required";
+        if(values.topic=='')
+            errors.topic="Topic is Required";
+        // if(values.rightMarks=='')
+        //     errors.rightMarks="Right Marks are Required";
+        // if(values.wrongMarks=='')
+        //     errors.wrongMarks="Wrong Marks are Required";
+        if(values.questionText=='')
+            errors.questionText="Question is Required";
+            return errors;
+        
+    }
+    const validateOnSubmitOpt = (values)=>{
+        values.options.map((val,i)=>{
+           return val.option==='' ? setFormErrorsOpt({...formErrorsOpt,[i]: {option:"option is required"}})
+           : null;
+        })
+        
+    
+    }
+    console.log(formErrorsOpt)
+    console.log(formData)
     return (
         <div>
             <div className='add-div'>
@@ -235,13 +282,13 @@ function AddQuestions() {
                             {/* for subject */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1' >
                                 <label>Select Subject</label><br />
-                                <select className='add-select' name='subject' onChange={onChangeHandler} required>
+                                <select className='add-select' name='subject' onChange={onChangeHandler}>
                                     <option value=''>Search Subject...</option>
                                     {subAPI && subAPI.map((subject, i) => {
                                         return <option key={i} value={subject._id}>{subject.name}</option>
                                     })}
                                 </select>
-                                <span style={{ color: "red" }}>{validate.subject}</span>
+                                <span style={{ color: "red" }}>{isSubmit ? formErrors.subject : validate.subject}</span>
                             </div>
                             {/* for topic */}
                             <div style={{ flex: '1' }} className='add-main-row1-col1'>
@@ -254,7 +301,7 @@ function AddQuestions() {
                                             <option key={i} value={topic._id}>{topic.name}</option> : null)
                                     })}
                                 </select>
-                                <span style={{ color: "red" }}>{validate.topic}</span>
+                                <span style={{ color: "red" }}>{isSubmit ? formErrors.topic : validate.topic}</span>
                             </div>
                             {
                             }       </div>
@@ -285,12 +332,12 @@ function AddQuestions() {
                                 <div style={{ flex: '1' }} >
                                     <label>Right Marks</label><br />
                                     <input type={'text'} name='rightMarks' className='add-input' value={formData.rightMarks} onChange={onChangeHandler} />
-                                    <span style={{ color: "red" }}>{validate.rightMarks}</span>
+                                    <span style={{ color: "red" }}>{isSubmit ? formErrors.rightMarks : validate.rightMarks}</span>
                                 </div>
                                 <div style={{ flex: '1' }} className='add-main-row2-half'>
                                     <label>Wrong Marks</label>
                                     <input type={'text'} name='wrongMarks' className='add-input' value={formData.wrongMarks} onChange={onChangeHandler} />
-                                    <span style={{ color: "red" }}>{validate.wrongMarks}</span>
+                                    <span style={{ color: "red" }}>{isSubmit ? formErrors.wrongMarks: validate.wrongMarks}</span>
                                 </div>
                             </div>
                         </div>
@@ -311,7 +358,7 @@ function AddQuestions() {
 
                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichTextQ()}>  {richEditorQ} Rich Text Editor</button>
                         </div>
-                        <span style={{ color: "red" }}>{validate.questionText}</span>
+                        <span style={{ color: "red" }}>{isSubmit ? formErrors.questionText : validate.questionText}</span>
                         <div>
 
                             Options
@@ -319,8 +366,7 @@ function AddQuestions() {
                                 return (
                                     <div key={val}>
                                         {
-                                            
-                                            formData.Qtype == 'MULTIPLE RESPONSE' ?
+                                             formData.Qtype == 'MULTIPLE RESPONSE' ?
                                                 <div>
                                                     <div className='options-row' >
                                                         <div className='options-col left'>
@@ -337,9 +383,9 @@ function AddQuestions() {
                                                         }
                                                     </div>
                                                     <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} > Remove Option</button>|
-                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}> {i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
                                                     {Object.keys(validateOpt).map((obj,i)=>{
-                                                     return i==val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
+                                                     return i===val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
                                                    })}
                                                 </div> :
                                                 <div>
@@ -358,11 +404,11 @@ function AddQuestions() {
                                                         }
                                                     </div>
                                                     <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
-                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                    <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => changeRichText(val)}> {i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
                                                   
                                                  
                                                    {Object.keys(validateOpt).map((obj,i)=>{
-                                                     return i==val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
+                                                     return i===val ? <span style={{ color: "red" }}>{validateOpt[obj].option}</span> :null
                                                    })}
                                                 </div>
                                                 

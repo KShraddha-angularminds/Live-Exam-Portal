@@ -8,13 +8,12 @@ function EditQuestion() {
     const { Qid } = useParams();
     const navigate = useNavigate();
     const [richEditorQ, setRichEditorQ] = useState("Enable")
-    const [richEditor, setRichEditor] = useState("Enable")
     const [queAPI, setQueAPI] = useState([]);
     const [subAPI, setSubAPI] = useState([]);
     const [topicAPI, setTopicAPI] = useState([]);
     const [isloading, setIsLoading] = useState(false)
     const [richTextEditFlag, setRichTextEditFlag] = useState([])
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0MjkyNzc4LCJleHAiOjE2NDQzMzU5Nzh9.GQmj1paG6Eaj-3eed0mL-5Nv-SshEbS_N6qVIKO9Xe0"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDAzOTA2LCJleHAiOjE2NDQ0NDcxMDZ9.YCwzIQu4KwaxJxOd6-y27t_ALGa1rNNnkVPxrUWBbVo"
     const [optionArr, setOptionArr] = useState([]);
 
 
@@ -171,7 +170,7 @@ function EditQuestion() {
     }
 
     const newOption = () => {
-        const temp = [...optionArr, { isCorrect: false, option: '' }]
+        const temp = [...optionArr, { isCorrect: false, option: '',richTextEditor: false}]
         setOptionArr(temp)
 
     }
@@ -181,7 +180,7 @@ function EditQuestion() {
     const changeRichText = (i) => {
       
         // setOptIndex(val)
-         richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
+        // richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
          setOptionArr((prev) =>
          prev.map((opt, j) => (i === j ? { ...opt, richTextEditor: opt.richTextEditor==true ? false :true } : opt))
        );
@@ -316,7 +315,7 @@ function EditQuestion() {
                                                  
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }}> Remove Option</button>|
-                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>{i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
                                             </div> :
                                             <div key={val}>
                                                 <div className='options-row' >
@@ -335,7 +334,7 @@ function EditQuestion() {
                                                         }
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
-                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>  {richEditor} Rich Text Editor</button>
+                                                <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}> {i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
                                             </div>
                                     )
                                 })}
