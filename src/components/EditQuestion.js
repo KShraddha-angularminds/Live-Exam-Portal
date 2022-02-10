@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import Main from './Main';
 
 function EditQuestion() {
     const { Qid } = useParams();
@@ -13,7 +14,7 @@ function EditQuestion() {
     const [topicAPI, setTopicAPI] = useState([]);
     const [isloading, setIsLoading] = useState(false)
     const [richTextEditFlag, setRichTextEditFlag] = useState([])
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDAzOTA2LCJleHAiOjE2NDQ0NDcxMDZ9.YCwzIQu4KwaxJxOd6-y27t_ALGa1rNNnkVPxrUWBbVo"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o"
     const [optionArr, setOptionArr] = useState([]);
 
 
@@ -207,6 +208,7 @@ function EditQuestion() {
       }, [isloading]);
     return (
         <div>
+            <Main/>
             {isloading &&
                 <div className='add-div'>
                     <div className='add-header'>

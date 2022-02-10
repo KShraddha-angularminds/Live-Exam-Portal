@@ -4,6 +4,7 @@ import './Style.css';
 import LibPagination from './LibPagination';
 import { Link } from 'react-router-dom'
 import { confirm } from "react-confirm-box";
+import Main from './Main';
 
 function Questions() {
 
@@ -17,7 +18,7 @@ function Questions() {
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
-    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDAzOTA2LCJleHAiOjE2NDQ0NDcxMDZ9.YCwzIQu4KwaxJxOd6-y27t_ALGa1rNNnkVPxrUWBbVo"
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o"
     useEffect(() => {
         setX(1);
     }, [selectedValue])
@@ -163,6 +164,7 @@ function Questions() {
 
     return (
         <div className>
+             <Main />
             <div className='title-div'>
                 <h3>Questions
                     <Link to="/add_question">
@@ -216,9 +218,9 @@ function Questions() {
                                             )
                                         })}
                                         <Link to={`/edit/${question._id}`}>
-                                        <button>Edit</button>
+                                        <button style={{border:"none",padding:"10px"}}><i className='fa fa-edit'></i>Edit</button>
                                         </Link>
-                                        <button onClick={() => deleteQueHandler(question._id)}>Delete</button>
+                                        <button style={{border:"none"}} onClick={() => deleteQueHandler(question._id)}><i className="fa fa-trash"></i>Delete</button>
                                     </div>
 
                                 </div>

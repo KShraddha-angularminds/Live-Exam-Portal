@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Style.css';
 import LibPagination from './LibPagination';
 import { Link } from 'react-router-dom'
+import Main from './Main';
 
 function Topic() {
 
@@ -16,7 +17,7 @@ function Topic() {
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDAzOTA2LCJleHAiOjE2NDQ0NDcxMDZ9.YCwzIQu4KwaxJxOd6-y27t_ALGa1rNNnkVPxrUWBbVo"
+    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o"
     useEffect(() => {
         setX(1);
     }, [selectedValue])
@@ -149,6 +150,7 @@ console.log(tData)
 
     return (
         <div className>
+            <Main/>
             <div className='title-div'>
                 <h3>Topics
                     <Link to="/add_subject">
@@ -174,7 +176,7 @@ console.log(tData)
                             <input type="checkbox" id="AllCheck" onClick={(e)=>deleteAll(e)}/>
                             </td>
                             <td> Sr.No </td><td> Topic </td><td>Subject</td><td> Actions </td>
-                            <td><button name='check' id="sDelete" style={{ display: "none" }} onClick={(e)=>deleteSelected(e)}>Delete</button></td>
+                            <td><button name='check' id="sDelete" style={{ display: "none" }} onClick={(e)=>deleteSelected(e)} style={{border:"none"}}><i className="fa fa-trash"></i></button></td>
                         </tr>
                         {tData && tData.map((topic, index) => {
                             return (
@@ -189,7 +191,7 @@ console.log(tData)
                                     </td>
                                     
                                     <td>
-                                        <button  onClick={() => deleteQueHandler(topic._id)}>Delete</button>
+                                        <button  onClick={() => deleteQueHandler(topic._id)} style={{border:"none"}}><i className="fa fa-trash"></i></button>
                                     </td>
 
                                 </tr>
