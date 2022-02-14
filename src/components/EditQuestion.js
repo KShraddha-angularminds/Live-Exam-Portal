@@ -14,8 +14,13 @@ function EditQuestion() {
     const [topicAPI, setTopicAPI] = useState([]);
     const [isloading, setIsLoading] = useState(false)
     const [richTextEditFlag, setRichTextEditFlag] = useState([])
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o"
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0ODE4MjU2LCJleHAiOjE2NDQ4NjE0NTZ9.Y1hLHDXl9PLdVYj-Ni4Fm8l-Z-LTxOdfRhuS_mm6xrc"
     const [optionArr, setOptionArr] = useState([]);
+    const [validate, setValidate] = useState({});
+    const [validateOpt, setValidateOpt] = useState({});
+    const [validateSameQ, setValidateSameQ] = useState({});
+    const [formErrorsOpt, setFormErrorsOpt] = useState([]);
+    const [isSubmit, setIsSubmit] = useState(false);
 
 
     const [formData, setFormData] = useState({
@@ -106,11 +111,22 @@ function EditQuestion() {
 
     const onChangeHandler = (e) => {
         const ename = e.target.name;
-        if (e.target.name == 'rightMarks' || e.target.name == 'wrongMarks') {
-            setFormData({ ...formData, [ename]: parseInt(e.target.value) })
-        }
-        else
-            setFormData({ ...formData, [ename]: e.target.value })
+        const regex = /^[0-9\b]+$/;
+        if (
+            (e.target.name == "rightMarks" || e.target.name == "wrongMarks") &&
+            e.target.value != ""
+          ) {
+            setFormData({
+              ...formData,
+              [ename]: regex.test(e.target.value) ? parseInt(e.target.value) : "",
+            });
+          } else setFormData({ ...formData, [ename]: e.target.value });
+
+             if (e.target.value == "") {
+                setValidate({ ...validate, [ename]: `${ename} is Required` });
+              } else {
+                setValidate({ ...validate, [ename]: "" });
+              }
     }
 
 
@@ -128,6 +144,12 @@ function EditQuestion() {
         setOptionArr(prev => prev.map((option, ind) =>
             i == ind ? { ...option, option: input } : option
         ))
+        setFormData({ ...formData, options: optionArr });
+    if (input == "") {
+      setValidateOpt({ ...validateOpt, [i]: { option: "option is required" } });
+    } else {
+      setValidateOpt({ ...validateOpt, [i]: "" });
+    }
 
     }
     isloading && console.log(formData)
@@ -212,7 +234,7 @@ function EditQuestion() {
             {isloading &&
                 <div className='add-div'>
                     <div className='add-header'>
-                        <h3>Add question</h3>
+                        <h3>Edit question</h3>
                     </div>
                     <pre>{JSON.stringify(formData, undefined, 2)}</pre>
                     <form onSubmit={SubmitForm} id='myForm'>
@@ -228,6 +250,7 @@ function EditQuestion() {
                                             return <option key={i} value={subject._id}>{subject.name}</option>
                                         })}
                                     </select>
+                                    <span style={{ color: "red" }}>{validate.subject}</span>
                                 </div>
                                 {/* for topic */}
                                 <div style={{ flex: '1' }} className='add-main-row1-col1'>
@@ -239,6 +262,7 @@ function EditQuestion() {
                                                 <option key={i} value={topic._id}>{topic.name}</option> : null)
                                         })}
                                     </select>
+                                    <span style={{ color: "red" }}>{validate.topic}</span>
                                 </div>
                                 {
                                 }       </div>
@@ -269,10 +293,12 @@ function EditQuestion() {
                                     <div style={{ flex: '1' }} >
                                         <label>Right Marks</label><br />
                                         <input type={'text'} name='rightMarks' className='add-input' value={formData.rightMarks} onChange={onChangeHandler} />
+                                        <span style={{ color: "red" }}>{validate.rightMarks}</span>
                                     </div>
                                     <div style={{ flex: '1' }} className='add-main-row2-half'>
                                         <label>Wrong Marks</label>
                                         <input type={'text'} name='wrongMarks' className='add-input' value={formData.wrongMarks} onChange={onChangeHandler} />
+                                        <span style={{ color: "red" }}>{validate.wrongMarks}</span>
                                     </div>
                                 </div>
                             </div>
@@ -290,7 +316,7 @@ function EditQuestion() {
 
                             }
                             <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichTextQ()}>  {richEditorQ} Rich Text Editor</button>
-                       
+                            <span style={{ color: "red" }}>{validate.questionText}</span>
                                 {/* <textarea rows={5} style={{ width: '100%', borderRadius: '4px', border: '1px solid lightgrey' }} name='questionText' defaultValue={formData.questionText} onChange={onChangeHandler} /> */}
                             </div>
                             <div>
@@ -318,6 +344,15 @@ function EditQuestion() {
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }}> Remove Option</button>|
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}>{i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
+                                                <div>
+                        {isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
+                              return i === val ? (
+                                <span style={{ color: "red" }}>
+                                  {validateOpt[obj].option}
+                                </span>
+                              ) : null;
+                            })}
+                            </div>
                                             </div> :
                                             <div key={val}>
                                                 <div className='options-row' >
@@ -337,6 +372,15 @@ function EditQuestion() {
                                                 </div>
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginRight: '10px', backgroundColor: 'white', border: 'none' }} onClick={() => removeOption(val)}> Remove Option</button>|
                                                 <button type='button' className='option-btm-btn' style={{ marginTop: '3px', marginLeft: '10px', backgroundColor: 'white', border: 'none' }} onClick={()=>changeRichText(val)}> {i.richTextEditor===false ? "Enable" : "Disable"} Rich Text Editor</button>
+                                                <div>
+                        {isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
+                              return i === val ? (
+                                <span style={{ color: "red" }}>
+                                  {validateOpt[obj].option}
+                                </span>
+                              ) : null;
+                            })}
+                            </div>
                                             </div>
                                     )
                                 })}

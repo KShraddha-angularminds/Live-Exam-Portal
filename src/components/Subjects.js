@@ -18,7 +18,7 @@ function Subject() {
     // const prevPage = () => {
     //     changeX(x===25? x : prevx => prevx - 1);
     // }
-    const tokenKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o"
+    const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NjM0OTgzLCJleHAiOjE2NDQ2NzgxODN9.le4MGo4ez8yObUl3NgZ5eiVrAc0GWJ9hwVmdX1O-xWk"
     useEffect(() => {
         setX(1);
     }, [selectedValue])

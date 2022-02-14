@@ -3,7 +3,6 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { computeHeadingLevel } from "@testing-library/react";
 import Main from "./Main";
 // import { computeHeadingLevel } from '@testing-library/react';
 function AddQuestions() {
@@ -38,8 +37,7 @@ function AddQuestions() {
       richTextEditor: false,
     },
   ];
-  const tokenKey =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0NDcxODg2LCJleHAiOjE2NDQ1MTUwODZ9.NLQvr2xjj57KvNuEkjzNpF3vG5iK58ZdZftvJGVd38o";
+  const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0ODE4MjU2LCJleHAiOjE2NDQ4NjE0NTZ9.Y1hLHDXl9PLdVYj-Ni4Fm8l-Z-LTxOdfRhuS_mm6xrc"
   const [optionArr, setOptionArr] = useState(tempOptionArr);
   const tempformData = {
     subject: "",
@@ -138,46 +136,77 @@ function AddQuestions() {
     //   return  index.option == input ? setValidateSameQ({...validateSameQ, sameQue :'Duplicate options are not allowed'}): setValidateSameQ(validateSameQ)
     // })
   };
+  console.log(formData)
 
   const SubmitForm = (e) => {
     e.preventDefault();
-
+    console.log(formData)
     setValidate(validateOnSubmit(formData));
 
-    validateOnSubmitOpt(formData);
+    setFormErrorsOpt(validateOnSubmitOpt(formData));
     setIsSubmit(true);
-    axios
-      .post("http://admin.liveexamcenter.in/api/questions", formData, {
-        headers: { authorization: tokenKey },
-      })
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    console.log(formData);
+    console.log(validate)
 
-    setFormData(tempformData);
+    console.log(isSubmit)
+    console.log(Object.keys(validate).length)
+
+   // setFormData(tempformData);
   };
 
+  const validateOnSubmit = (values) => {
+    const errors = {};
+    let flag=false;
+    if (values.subject == "") errors.subject = "Subject is Required";
+    if (values.topic == "") errors.topic = "Topic is Required";
+    if (values.rightMarks == null) errors.rightMarks = "Right Marks are Required";
+    if (values.wrongMarks == null) errors.wrongMarks = "Wrong Marks are Required";
+    if (values.questionText == "") errors.questionText = "Question is Required";
+    
+    values.options.map((option) => {
+      if (option.isCorrect === true) {
+        flag=true;
+              }
+    });
+    console.log(flag)
+    if(flag===false) errors.correctOpt='Please select correct answer from options';
+
+    //values.options.forEach(option => oArr.push({[option]: 'option is required'})); 
+
+    //setFormErrorsOpt(oArr);
+    return errors;
+  };
+  const validateOnSubmitOpt = (values) => {
+    const oArr =[]
+     values.options.map((option) => {
+    if (option.option == "") {
+          oArr.push({ option: "option is required" });
+          console.log(oArr);
+        } else {
+          oArr.push({ option: "" });
+        }
+      });
+    return oArr
+  };
+  console.log(validate)
   useEffect(() => {
-    if (Object.keys(validate).length == 0 && isSubmit) {
-      console.log("innnn");
-      //   axios
-      //     .post("http://admin.liveexamcenter.in/api/questions", formData, {
-      //       headers: { authorization: tokenKey },
-      //     })
-      //     .then((res) => {
-      //       console.log(res.data);
-      //       console.log("sucees");
-      //     })
-      //     .catch((err) => {
-      //       console.log(err);
-      //     });
+    if (Object.keys(validate).length === 0 && isSubmit) {
+      axios
+          .post("http://admin.liveexamcenter.in/api/questions", formData, {
+            headers: { authorization: tokenKey },
+          })
+          .then((res) => {
+            console.log(res.data);
+            console.log("sucees");
+            setIsSubmit(false)
+            //setFormData(tempformData);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
     }
   });
 
+console.log(isSubmit)
   const checkBoxOption = (i, e) => {
     //To check option is checked or not and accordingly set value of iscorrect
     e.checked == true
@@ -257,36 +286,7 @@ function AddQuestions() {
       setValidateOpt({ ...validateOpt, [i]: "" });
     }
   };
-  const validateOnSubmit = (values) => {
-    const errors = {};
-    const oArr = [];
-    if (values.subject == "") errors.subject = "Subject is Required";
-    if (values.topic == "") errors.topic = "Topic is Required";
-    if (values.rightMarks == "") errors.rightMarks = "Right Marks are Required";
-    if (values.wrongMarks == "") errors.wrongMarks = "Wrong Marks are Required";
-    if (values.questionText == "") errors.questionText = "Question is Required";
-
-    values.options.map((option) => {
-      if (option.option == "") {
-        oArr.push({ option: "option is required" });
-        console.log(oArr);
-      } else {
-        oArr.push({ option: "" });
-      }
-    });
-    setFormErrorsOpt(oArr);
-    return errors;
-  };
-  const validateOnSubmitOpt = (values) => {
-    values.options.map((val, i) => {
-      return val.option === ""
-        ? setFormErrorsOpt({
-            ...formErrorsOpt,
-            [i]: { option: "option is required" },
-          })
-        : null;
-    });
-  };
+ 
   console.log(validate);
   console.log(formErrorsOpt);
   return (
@@ -521,15 +521,15 @@ function AddQuestions() {
                             : "Disable"}{" "}
                           Rich Text Editor
                         </button>
-                        {isSubmit
-                          ? formErrorsOpt[i].option
-                          : Object.keys(validateOpt).map((obj, i) => {
+                        <div>
+                        {isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
                               return i === val ? (
                                 <span style={{ color: "red" }}>
                                   {validateOpt[obj].option}
                                 </span>
                               ) : null;
                             })}
+                            </div>
                       </div>
                     ) : (
                       <div>
@@ -575,7 +575,6 @@ function AddQuestions() {
                           }}
                           onClick={() => removeOption(val)}
                         >
-                          {" "}
                           Remove Option
                         </button>
                         |
@@ -596,17 +595,17 @@ function AddQuestions() {
                             : "Disable"}{" "}
                           Rich Text Editor
                         </button>
-                        {isSubmit
-                          ? formErrorsOpt[i].option
-                          : Object.keys(validateOpt).map((obj, i) => {
+                        <div>
+                        { isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
                               return i === val ? (
                                 <span style={{ color: "red" }}>
                                   {validateOpt[obj].option}
                                 </span>
                               ) : null;
                             })}
+                            </div>
                       </div>
-                    )}{" "}
+                    )}
                   </div>
                 );
               })}
@@ -614,7 +613,10 @@ function AddQuestions() {
             <button type="button" onClick={newOption}>
               +Add Option
             </button>
+            <div>
             <span style={{ color: "red" }}>{validateSameQ.sameQue}</span>
+            <span style={{ color: "red" }}>{validate.correctOpt}</span>
+              </div>
           </div>
           <div className="add-footer">
             <button

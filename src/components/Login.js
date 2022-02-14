@@ -8,6 +8,10 @@ function Login() {
   console.log(window.location.href);
   const [showPassword, setShowPassword] = useState(false);
   const [submit, setSubmit] = useState(false);
+  const [validate,setValidate] =  useState({
+    email:'',
+    password:''
+  })
   const [googleData, setGoogleData] = useState({
     idToken: "",
     reCaptchaToken: "",
@@ -22,12 +26,33 @@ function Login() {
 
   const loginSubmit = async (e) => {
     e.preventDefault();
+   
     const token = await reRef.current.executeAsync();
     console.log(token);
     setFormData({ ...formData, reCaptchaToken: token });
-    setSubmit(true);
-  };
 
+    setValidate(functValidate(formData))
+    setSubmit(true);
+
+
+  };
+const functValidate=(values)=>{
+  const regex = /^[\w%\+\-]+(\.[\w%\+\-]+)*@[\w%\+\-]+(\.[\w%\+\-]+)+$/;
+  const passReg = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+  const errors = {};
+  if (values.email == "")
+  {errors.email = "Username is Required";}
+  else
+  if(values.email.length<6)
+   { errors.email = "Username is invalid";}
+   else if(!regex.test(values.email))
+   {console.log("innnnnnn"); errors.email = "Username is invalid";}
+  if (values.password == "") {errors.password = "password is Required";}
+  else
+  if(values.password.length<6 || !passReg.test(values.password))
+  { errors.password = "password is invalid";}
+  return errors;
+}
   useEffect(() => {
     if (submit && formData.reCaptchaToken != "") {
       axios
@@ -46,7 +71,7 @@ function Login() {
         });
     }
   }, [submit]);
-
+console.log(validate)
   const responseGoogle = async (response) => {
     console.log(response);
     const token = await reRef.current.executeAsync();
@@ -88,9 +113,9 @@ function Login() {
               name="uname"
               onChange={(e) =>
                 setFormData({ ...formData, email: e.target.value })
-              }
-              required
+              } 
             />
+           <span style={{ color: "red" }}>{validate.email}</span>
           </div>
           <div className="login-userName">
             <label>
@@ -104,7 +129,6 @@ function Login() {
                     placeholder="Enter Password"
                     style={{ display: "block", width: "100%" }}
                     name="psw"
-                    required
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
@@ -124,7 +148,6 @@ function Login() {
                     placeholder="Enter Password"
                     style={{ display: "block", width: "100%" }}
                     name="psw"
-                    required
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
@@ -138,6 +161,7 @@ function Login() {
                   </button>
                 </>
               )}
+                              <span style={{ color: "red" }}>{validate.password}</span>
             </div>
             <div>
               <button
