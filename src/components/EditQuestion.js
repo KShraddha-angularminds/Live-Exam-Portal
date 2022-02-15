@@ -147,21 +147,85 @@ function EditQuestion() {
   const SubmitForm = (e) => {
     e.preventDefault();
     // let navigate = Navigate();
-    axios
-      .put(`http://admin.liveexamcenter.in/api/questions/${Qid}`, formData, {
-        headers: { authorization: tokenKey },
-      })
-      .then((res) => {
-        console.log(res.data);
-        navigate("/questions");
-        // setTopicAPI(res.data.result)
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    // axios
+    //   .put(`http://admin.liveexamcenter.in/api/questions/${Qid}`, formData, {
+    //     headers: { authorization: tokenKey },
+    //   })
+    //   .then((res) => {
+    //     console.log(res.data);
+    //     navigate("/questions");
+    //     // setTopicAPI(res.data.result)
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+    setValidate(validateOnSubmit(formData));
+
+    setFormErrorsOpt(validateOnSubmitOpt(formData));
+
+    setIsSubmit(true);
     console.log(optionArr);
     console.log(formData);
   };
+  const validateOnSubmit = (values) => {
+    const errors = {};
+    let flag = false;
+    if (values.subject == "") errors.subject = "Subject is Required";
+    if (values.topic == "") errors.topic = "Topic is Required";
+    if (values.rightMarks == null)
+      errors.rightMarks = "Right Marks are Required";
+    if (values.wrongMarks == null)
+      errors.wrongMarks = "Wrong Marks are Required";
+    if (values.questionText == "") errors.questionText = "Question is Required";
+
+    values.options.map((option) => {
+      if (option.isCorrect === true) {
+        flag = true;
+      }
+    });
+    console.log(flag);
+    if (flag === false)
+      errors.correctOpt = "Please select correct answer from options";
+
+    return errors;
+  };
+  const validateOnSubmitOpt = (values) => {
+    const oArr = [];
+    values.options.map((option) => {
+      if (option.option == "") {
+        oArr.push({ option: "option is required" });
+        console.log(oArr);
+      } else {
+        oArr.push({ option: "" });
+      }
+    });
+    return oArr;
+  };
+  useEffect(() => {
+    let flag = 0;
+    Object.keys(validateOpt).map(function (err) {
+      if (validateOpt[err] != "") {
+        flag++;
+      }
+    });
+    console.log(isSubmit);
+    console.log(Object.keys(validate).length);
+    if (Object.keys(validate).length === 0 && flag == 0 && isSubmit) {
+      axios
+        .put(`http://admin.liveexamcenter.in/api/questions/${Qid}`, formData, {
+          headers: { authorization: tokenKey },
+        })
+        .then((res) => {
+          console.log(res.data);
+          console.log("success");
+          setIsSubmit(false);
+          navigate("/questions");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  });
 
   const checkBoxOption = (i, e) => {
     //To check option is checked or not and accordingly set value of iscorrect
@@ -208,8 +272,6 @@ function EditQuestion() {
       : setRichEditorQ("Enable");
   };
   const changeRichText = (i) => {
-    // setOptIndex(val)
-    // richEditor == "Enable" ? setRichEditor("Disable") : setRichEditor("Enable");
     setOptionArr((prev) =>
       prev.map((opt, j) =>
         i === j
@@ -491,7 +553,6 @@ function EditQuestion() {
                         <div className="options-col left">
                           <input
                             type={"radio"}
-                            name={"isCorrect"}
                             id={`radio-1`}
                             name="isCorrect"
                             checked={i.isCorrect}

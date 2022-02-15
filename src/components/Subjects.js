@@ -19,6 +19,7 @@ function Subject() {
   const [checkArr, setCheckArr] = useState([]);
   const [deleteResponse, setDelResonse] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
+  const [formValidate, setFormValidate] = useState({});
   // const prevPage = () => {
   //     changeX(x===25? x : prevx => prevx - 1);
   // }
@@ -181,8 +182,14 @@ function Subject() {
 
   const onChangeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.value == "") {
+      setFormValidate({
+        ...formValidate,
+        [e.target.name]: "Subject is required",
+      });
+    }
   };
-
+  console.log(formValidate);
   return (
     <div className>
       <Main />
@@ -313,6 +320,7 @@ function Subject() {
                 style={{ width: "100%" }}
                 onChange={onChangeHandler}
               />
+              <span style={{ color: "red" }}>{formValidate.name}</span>
             </div>
             <div class="modal-footer">
               <button

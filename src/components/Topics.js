@@ -14,7 +14,7 @@ function Topic() {
   const [selectedValue, changeSelectedValue] = useState(10);
   const [checkArr, setCheckArr] = useState([]);
   const [deleteResponse, setDelResonse] = useState("");
-
+  const [formValidate, setFormValidate] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     subject: "",
@@ -195,7 +195,14 @@ function Topic() {
 
   const onChangeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.value == "") {
+      setFormValidate({
+        ...formValidate,
+        [e.target.name]: `${e.target.name} is required`,
+      });
+    }
   };
+  console.log(formValidate);
   return (
     <div className>
       <Main />
@@ -347,7 +354,7 @@ function Topic() {
                     );
                   })}
               </select>
-
+              <span style={{ color: "red" }}>{formValidate.subject}</span>
               <label> Topic Name</label>
 
               <input
@@ -356,6 +363,7 @@ function Topic() {
                 style={{ width: "100%" }}
                 onChange={onChangeHandler}
               />
+              <span style={{ color: "red" }}>{formValidate.name}</span>
             </div>
             <div class="modal-footer">
               <button

@@ -145,6 +145,7 @@ function AddQuestions() {
     setValidate(validateOnSubmit(formData));
 
     setFormErrorsOpt(validateOnSubmitOpt(formData));
+
     setIsSubmit(true);
 
     // setFormData(tempformData);
@@ -170,9 +171,6 @@ function AddQuestions() {
     if (flag === false)
       errors.correctOpt = "Please select correct answer from options";
 
-    //values.options.forEach(option => oArr.push({[option]: 'option is required'}));
-
-    //setFormErrorsOpt(oArr);
     return errors;
   };
   const validateOnSubmitOpt = (values) => {
@@ -187,9 +185,16 @@ function AddQuestions() {
     });
     return oArr;
   };
-  console.log(validate);
+
   useEffect(() => {
-    if (Object.keys(validate).length === 0 && isSubmit) {
+    let flag = 0;
+    Object.keys(validateOpt).map(function (err) {
+      if (validateOpt[err] != "") {
+        flag++;
+      }
+    });
+    console.log(flag);
+    if (Object.keys(validate).length === 0 && flag == 0 && isSubmit) {
       axios
         .post("http://admin.liveexamcenter.in/api/questions", formData, {
           headers: { authorization: tokenKey },
@@ -205,7 +210,7 @@ function AddQuestions() {
         });
     }
   });
-
+  console.log(validateOpt);
   console.log(isSubmit);
   const checkBoxOption = (i, e) => {
     //To check option is checked or not and accordingly set value of iscorrect

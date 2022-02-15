@@ -261,7 +261,7 @@ function Questions() {
                               {console.log(typeof option.isCorrect)}
                               <input
                                 type={qType}
-                                name="option"
+                                name={`${index}-${indexop}`}
                                 value={indexop}
                                 id={indexop}
                                 checked={option.isCorrect}
