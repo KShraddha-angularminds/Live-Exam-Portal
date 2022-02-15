@@ -37,7 +37,8 @@ function AddQuestions() {
       richTextEditor: false,
     },
   ];
-  const tokenKey="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0ODE4MjU2LCJleHAiOjE2NDQ4NjE0NTZ9.Y1hLHDXl9PLdVYj-Ni4Fm8l-Z-LTxOdfRhuS_mm6xrc"
+  const tokenKey =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MWRkMjgwYWU2ZDdkNzdjOGU0ZjY4ZjYiLCJfYWN0aXZlT3JnIjoiNjE5Y2U0YThlNTg2ODUxNDYxMGM4ZGE3IiwiaWF0IjoxNjQ0ODk5NDUwLCJleHAiOjE2NDQ5NDI2NTB9.hIb1vv07n1FOH_V1aQVy8rE3aoq6Xj6qscx52HYpx08";
   const [optionArr, setOptionArr] = useState(tempOptionArr);
   const tempformData = {
     subject: "",
@@ -136,77 +137,76 @@ function AddQuestions() {
     //   return  index.option == input ? setValidateSameQ({...validateSameQ, sameQue :'Duplicate options are not allowed'}): setValidateSameQ(validateSameQ)
     // })
   };
-  console.log(formData)
+  console.log(formData);
 
   const SubmitForm = (e) => {
     e.preventDefault();
-    console.log(formData)
+    console.log(formData);
     setValidate(validateOnSubmit(formData));
 
     setFormErrorsOpt(validateOnSubmitOpt(formData));
     setIsSubmit(true);
-    console.log(validate)
 
-    console.log(isSubmit)
-    console.log(Object.keys(validate).length)
-
-   // setFormData(tempformData);
+    // setFormData(tempformData);
   };
 
   const validateOnSubmit = (values) => {
     const errors = {};
-    let flag=false;
+    let flag = false;
     if (values.subject == "") errors.subject = "Subject is Required";
     if (values.topic == "") errors.topic = "Topic is Required";
-    if (values.rightMarks == null) errors.rightMarks = "Right Marks are Required";
-    if (values.wrongMarks == null) errors.wrongMarks = "Wrong Marks are Required";
+    if (values.rightMarks == null)
+      errors.rightMarks = "Right Marks are Required";
+    if (values.wrongMarks == null)
+      errors.wrongMarks = "Wrong Marks are Required";
     if (values.questionText == "") errors.questionText = "Question is Required";
-    
+
     values.options.map((option) => {
       if (option.isCorrect === true) {
-        flag=true;
-              }
+        flag = true;
+      }
     });
-    console.log(flag)
-    if(flag===false) errors.correctOpt='Please select correct answer from options';
+    console.log(flag);
+    if (flag === false)
+      errors.correctOpt = "Please select correct answer from options";
 
-    //values.options.forEach(option => oArr.push({[option]: 'option is required'})); 
+    //values.options.forEach(option => oArr.push({[option]: 'option is required'}));
 
     //setFormErrorsOpt(oArr);
     return errors;
   };
   const validateOnSubmitOpt = (values) => {
-    const oArr =[]
-     values.options.map((option) => {
-    if (option.option == "") {
-          oArr.push({ option: "option is required" });
-          console.log(oArr);
-        } else {
-          oArr.push({ option: "" });
-        }
-      });
-    return oArr
+    const oArr = [];
+    values.options.map((option) => {
+      if (option.option == "") {
+        oArr.push({ option: "option is required" });
+        console.log(oArr);
+      } else {
+        oArr.push({ option: "" });
+      }
+    });
+    return oArr;
   };
-  console.log(validate)
+  console.log(validate);
   useEffect(() => {
     if (Object.keys(validate).length === 0 && isSubmit) {
       axios
-          .post("http://admin.liveexamcenter.in/api/questions", formData, {
-            headers: { authorization: tokenKey },
-          })
-          .then((res) => {
-            console.log(res.data);
-            console.log("sucees");
-            setIsSubmit(false)
-            //setFormData(tempformData);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        .post("http://admin.liveexamcenter.in/api/questions", formData, {
+          headers: { authorization: tokenKey },
+        })
+        .then((res) => {
+          console.log(res.data);
+          console.log("sucees");
+          setIsSubmit(false);
+          //setFormData(tempformData);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   });
 
-console.log(isSubmit)
+  console.log(isSubmit);
   const checkBoxOption = (i, e) => {
     //To check option is checked or not and accordingly set value of iscorrect
     e.checked == true
@@ -286,7 +286,7 @@ console.log(isSubmit)
       setValidateOpt({ ...validateOpt, [i]: "" });
     }
   };
- 
+
   console.log(validate);
   console.log(formErrorsOpt);
   return (
@@ -522,14 +522,20 @@ console.log(isSubmit)
                           Rich Text Editor
                         </button>
                         <div>
-                        {isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
+                          {isSubmit ? (
+                            <span style={{ color: "red" }}>
+                              {formErrorsOpt[val].option}
+                            </span>
+                          ) : (
+                            Object.keys(validateOpt).map((obj, i) => {
                               return i === val ? (
                                 <span style={{ color: "red" }}>
                                   {validateOpt[obj].option}
                                 </span>
                               ) : null;
-                            })}
-                            </div>
+                            })
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <div>
@@ -596,14 +602,20 @@ console.log(isSubmit)
                           Rich Text Editor
                         </button>
                         <div>
-                        { isSubmit ?<span style={{ color: "red" }}>{formErrorsOpt[val].option}</span> : Object.keys(validateOpt).map((obj, i) => {
+                          {isSubmit ? (
+                            <span style={{ color: "red" }}>
+                              {formErrorsOpt[val].option}
+                            </span>
+                          ) : (
+                            Object.keys(validateOpt).map((obj, i) => {
                               return i === val ? (
                                 <span style={{ color: "red" }}>
                                   {validateOpt[obj].option}
                                 </span>
                               ) : null;
-                            })}
-                            </div>
+                            })
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -614,9 +626,9 @@ console.log(isSubmit)
               +Add Option
             </button>
             <div>
-            <span style={{ color: "red" }}>{validateSameQ.sameQue}</span>
-            <span style={{ color: "red" }}>{validate.correctOpt}</span>
-              </div>
+              <span style={{ color: "red" }}>{validateSameQ.sameQue}</span>
+              <span style={{ color: "red" }}>{validate.correctOpt}</span>
+            </div>
           </div>
           <div className="add-footer">
             <button
